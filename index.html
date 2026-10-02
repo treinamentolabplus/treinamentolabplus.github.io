@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 
 <head>
     <meta charset="utf-8">
@@ -7,13 +7,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>HotSoft - Migração</title>
+    <link rel="icon" href="images/icon.png" type="image/png" />
+    <title>Treinamento - LabPlus</title>
     <!-- Bootstrap Core CSS -->
     <link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome CSS -->
     <link href="css/font-awesome.min.css" rel="stylesheet">
-    <!-- Custom CSS -->
-    <link href="css/animate.css" rel="stylesheet">
     <!-- Custom CSS -->
     <link href="css/style.css" rel="stylesheet">
     <!-- Custom Fonts -->
@@ -33,153 +32,224 @@
 </head>
 
 <body>
-    <!-- Start Logo Section -->
-    <section id="logo-section" class="text-center">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="logo text-center">
-                        <!-- <h1>HotSoft</h1> -->
-                        <div style="margin-bottom: 8px;"> <img src="images/logo.png" style="max-width: 220px; max-height: 150px; width: auto; height: auto; filter: brightness(0) invert(1);"> </div>
-                        <span style="font-size: 13px; font-weight: 500; letter-spacing: 0.5px;">SOLUÇÕES EM SOFTWARE E ATENDIMENTO PARA LABORATÓRIOS CLÍNICOS DESDE 1987.</span>
+    <!-- Start Header Section -->
+    <header>
+        <section id="logo-section" class="text-center">
+            <div class="container">
+                <div class="header-flex">
+                    <div class="header-logo-left">
+                        <img src="images/logo.png" class="logo-img" alt="HotSoft">
                     </div>
+                    <div class="header-slogan-wrap">
+                        <span class="logo-slogan">SOLUÇÕES EM SOFTWARE E ATENDIMENTO PARA LABORATÓRIOS CLÍNICOS DESDE 1987.</span>
+                        <span class="slogan-bar"></span>
+                    </div>
+                    <div class="header-training-badge">
+                        <span class="header-training-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M12 5.2 20.5 9.3 12 13.4 3.5 9.3 12 5.2Z" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/>
+                                <path d="M7.3 11.1v3.4c0 1.05 2.1 1.85 4.7 1.85s4.7-.8 4.7-1.85v-3.4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M20.5 9.3v4.1" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+                            </svg>
+                        </span>
+                        <span class="header-training-text">Central de Treinamentos</span>
+                    </div>
+                   
+                </div>
+            </div>
+        </section>
+    </header>
+    <!-- End Header Section -->
+    <!-- Start Main Content Section -->
+    <main>
+    <!-- Grid via CSS Grid (não Bootstrap col-md-*): mantém várias colunas em
+         qualquer largura de tela, nunca empilha em coluna única. O número
+         de colunas diminui por media query (5 -> 4 -> 3 -> 2 -> 1), mas o
+         conjunto de itens continua lado a lado, evitando que a página
+         fique alta demais e precise de scroll. -->
+    <div class="mainbody-section">
+        <div class="container">
+        
+            <div class="mainbody-top">
+                <div class="mainbody-title">
+                    
+                    <h1>Central de Treinamentos <span class="highlight">LabPlus</span></h1>
+                    <p>Acesse os módulos de treinamento por área e desenvolva seu conhecimento na plataforma.</p>
+                </div>
+                <a href="https://livezilla.hotsoft.net.br/chat.php" target="_blank" rel="noopener noreferrer" class="support-box">
+                    <span class="support-icon" aria-hidden="true">
+                        <svg class="support-icon-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 13v-1a8 8 0 0 1 16 0v1" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <rect x="2.5" y="12" width="4" height="7" rx="2" fill="currentColor"/>
+                            <rect x="17.5" y="12" width="4" height="7" rx="2" fill="currentColor"/>
+                            <path d="M19.5 19v1a3 3 0 0 1-3 3h-2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                            <circle cx="12.5" cy="21.5" r="1.5" fill="currentColor"/>
+                        </svg>
+                    </span>
+                    <span class="support-text">
+                    
+                        <strong>Precisa de ajuda?</strong>
+                        <span>Acesse o Suporte / Liberação</span>
+                    </span>
+                    <span class="support-btn">Abrir suporte <i class="fa fa-external-link"></i></span>
+                </a>
+            </div>
+            <div class="menu-grid">
+                <div class="menu-item">
+                    <a href="#orientacoes-modal" data-toggle="modal">
+                        <span class="menu-icon-badge blue"><i class="fa fa-bullhorn fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">1. Orientações</span> Gerais</span>
+                        <span class="menu-item-desc">Boas práticas e informações iniciais.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#backup-modal" data-toggle="modal">
+                        <span class="menu-icon-badge green"><i class="fa fa-cloud-upload fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">2. Backup</span></span>
+                        <span class="menu-item-desc">Recomendações sobre rotinas de backup.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#suporte-modal" data-toggle="modal">
+                        <span class="menu-icon-badge ocean-blue"><i class="fa fa-medkit fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">3. Suporte</span> / Liberação</span>
+                        <span class="menu-item-desc">Suporte técnico e Liberação de exames.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#recepcao-modal" data-toggle="modal">
+                        <span class="menu-icon-badge light-orange"><i class="fa fa-book fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">4. Recepção</span></span>
+                        <span class="menu-item-desc">Atendimento e cadastro de Requisições.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#digitacao-modal" data-toggle="modal">
+                        <span class="menu-icon-badge red"><i class="fa fa-keyboard-o fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">5. Digitação</span></span>
+                        <span class="menu-item-desc">Lançamento de exames e resultados.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#aprovacao-modal" data-toggle="modal">
+                        <span class="menu-icon-badge color"><i class="fa fa-thumbs-o-up fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">6. Aprovação</span></span>
+                        <span class="menu-item-desc">Aprovação de resultados.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#emissao-modal" data-toggle="modal">
+                        <span class="menu-icon-badge light-red"><i class="fa fa-print fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">7. Emissão</span> de Laudo</span>
+                        <span class="menu-item-desc">Emissão e publicação de laudos.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#exame-modal" data-toggle="modal">
+                        <span class="menu-icon-badge blue"><i class="fa fa-flask fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">8. Exames</span></span>
+                        <span class="menu-item-desc">Cadastro e parametrização de exames.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#convenio-modal" data-toggle="modal">
+                        <span class="menu-icon-badge green"><i class="fa fa-users fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">9. Convênios</span></span>
+                        <span class="menu-item-desc">Gestão de convênios, operadoras e tabelas.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#apoio-modal" data-toggle="modal">
+                        <span class="menu-icon-badge ocean-blue"><i class="fa fa-handshake-o fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">10. Lab.</span> Apoio</span>
+                        <span class="menu-item-desc">Laboratório de apoio e parcerias.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#caixa-modal" data-toggle="modal">
+                        <span class="menu-icon-badge light-orange"><i class="fa fa-money fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">11. Caixa</span></span>
+                        <span class="menu-item-desc">Movimentação financeira e recebimentos.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#faturamento-modal" data-toggle="modal">
+                        <span class="menu-icon-badge red"><i class="fa fa-line-chart fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">12. Faturamento</span></span>
+                        <span class="menu-item-desc">Faturamento e contas a receber.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#usuarios-modal" data-toggle="modal">
+                        <span class="menu-icon-badge color"><i class="fa fa-user fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">13. Usuários</span></span>
+                        <span class="menu-item-desc">Gestão de usuários e permissões.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item">
+                    <a href="#relatorios-modal" data-toggle="modal">
+                        <span class="menu-icon-badge light-red"><i class="fa fa-file-pdf-o fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">14. Relatórios</span></span>
+                        <span class="menu-item-desc">Relatórios e indicadores do sistema.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
+                </div>
+                <div class="menu-item" id="downloads-menu-item" data-toggle="modal" data-target="#downloads-modal">
+                    <a>
+                        <span class="menu-icon-badge blue"><i class="fa fa-download fa-fw"></i></span>
+                        <span class="menu-item-title"><span class="menu-item-title-lock">15. Downloads</span></span>
+                        <span class="menu-item-desc">Downloads de aplicações úteis.</span>
+                        <span class="menu-item-arrow"><i class="fa fa-arrow-right"></i></span>
+                    </a>
                 </div>
             </div>
         </div>
-    </section>
-    <!-- End Logo Section -->
-    <!-- Start Main Body Section -->
-    <div class="mainbody-section text-center">
-        <div class="container">
-            <div class="row">
-                <div class="col-md-2">
-                    <div class="menu-item blue">
-                        <a href="#orientacoes-modal" data-toggle="modal">
-                            <i class="fa fa-bullhorn"></i>
-                            <p>1 - ORIENTAÇÕES GERAIS</p>
-                        </a>
-                    </div>
-                    <div class="menu-item green">
-                        <a href="#backup-modal" data-toggle="modal">
-                            <i class="fa fa-cloud-upload"></i>
-                            <p>2 - BACKUP</p>
-                        </a>
-                    </div>
-                    <div class="menu-item light-red">
-                        <a href="#recepcao-modal" data-toggle="modal">
-                            <i class="fa fa-book"></i>
-                            <p>3 - RECEPÇÃO</p>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="menu-item red">
-                        <a href="#digitacao-modal" data-toggle="modal">
-                            <i class="fa fa-keyboard-o"></i>
-                            <p>4 - DIGITAÇÃO</p>
-                        </a>
-                    </div>
-                    <div class="menu-item ocean-blue">
-                        <a href="#aprovacao-modal" data-toggle="modal">
-                            <i class="fa fa-thumbs-o-up"></i>
-                            <p>5 - APROVAÇÃO</p>
-                        </a>
-                    </div>
-                    <div class="menu-item color">
-                        <a href="#emissao-modal" data-toggle="modal">
-                            <i class="fa fa-print"></i>
-                            <p>6 - EMISSÃO DE LAUDO</p>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div style="text-align: center; margin-bottom: 10px;">
-                        <img src="images/LabPlus.png" class="img-responsive" alt="" style="max-height: 130px; width: auto; display: inline-block; filter: drop-shadow(0 4px 12px rgba(74, 95, 234, 0.15));">
-                    </div>
-                    <div class="col-md-6">
-                        <div class="menu-item light-orange">
-                            <a href="#exame-modal" data-toggle="modal">
-                                <i class="fa fa-flask"></i>
-                                <p>7 - EXAMES</p>
-                            </a>
-                        </div>
-                        <div class="menu-item blue ">
-                            <a href="#convenio-modal" data-toggle="modal">
-                                <i class="fa fa-users"></i>
-                                <p>8 - CONVÊNIOS</p>
-                            </a>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="menu-item green">
-                            <a href="#apoio-modal" data-toggle="modal">
-                                <i class="fa fa-handshake-o"></i>
-                                <p>9 - LAB. APOIO</p>
-                            </a>
-                        </div>
-                        <div class="menu-item light-red">
-                            <a href="#caixa-modal" data-toggle="modal">
-                                <i class="fa fa-money"></i>
-                                <p>10 - CAIXA</p>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="menu-item red">
-                        <a href="#faturamento-modal" data-toggle="modal">
-                            <i class="fa fa-line-chart"></i>
-                            <p>11 - FATURAMENTO</p>
-                        </a>
-                    </div>
-                    <div class="menu-item ocean-blue">
-                        <a href="#usuarios-modal" data-toggle="modal">
-                            <i class="fa fa-user"></i>
-                            <p>12 - USUÁRIOS</p>
-                        </a>
-                    </div>
-                    <div class="menu-item color">
-                        <a href="#suporte-modal" data-toggle="modal">
-                            <i class="fa fa-medkit"></i>
-                            <p>13 - SUPORTE/LIBERAÇÃO</p>
-                        </a>
-                    </div>
-                </div>
-                <div class="col-md-2">
-                    <div class="menu-item light-orange">
-                        <a href="#relatorios-modal" data-toggle="modal">
-                            <i class="fa fa-file-pdf-o"></i>
-                            <p>14 - RELATÓRIOS</p>
-                        </a>
-                    </div>
-                    <div class="menu-item blue">
-                        <a href="./downloads" data-toggle="modal">
-                            <i class="fa fa-download"></i>
-                            <p>15 - DOWNLOADS</p>
-                        </a>
-                    </div>
-                    <div class="menu-item green">
-                        <a href="#recursos-modal" data-toggle="modal">
-                            <i class="fa fa-plus"></i>
-                            <p>16 - RECURSOS</p>
-                        </a>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Logo LabPlus flutuante: fora do .container/.menu-grid, não faz
+             parte do grid nem do footer. Fica ancorada ao canto inferior
+             direito da própria .mainbody-section (ver .labplus-float-logo
+             no CSS), que ocupa exatamente a área entre header e footer. -->
+        <img src="images/LabPlus.png" class="labplus-float-logo" alt="LabPlus">
     </div>
     <!-- End Main Body Section -->
-    <!-- Start Copyright Section -->
-    <div class="copyright text-center">
+    </main>
+    <!-- End Main Content Section -->
+    <!-- Start Footer Section -->
+    <footer>
+        <div class="copyright text-center">
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <div><a href="http://www.hotsoft.com.br/" target="_blank">HotSoft</a> Av. Tiradentes, 57, sobreloja - Centro - 87013-260 | Maringá - PR | Brasil | Fone: (44) 3302.4455</div>
+                    <div class="footer-info">
+                        <img src="images/labplus_minimal.png" alt="LabPlus" class="footer-logo footer-logo-labplus">
+                        <span class="footer-sep" aria-hidden="true">|</span>
+                        <a href="http://www.hotsoft.com.br/" target="_blank">Hotsoft</a>
+                        <span class="footer-sep" aria-hidden="true">|</span>
+                        <span class="footer-item">Av. Tiradentes, 57, sobreloja - Centro - 87013-260</span>
+                        <span class="footer-sep" aria-hidden="true">|</span>
+                        <span class="footer-item">Maringá - PR | Brasil</span>
+                        <span class="footer-sep" aria-hidden="true">|</span>
+                        <span class="footer-item">Fone: (44) 3302.4455</span>
+                        
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-    <!-- End Copyright Section -->
+    </footer>
+    <!-- End Footer Section -->
+    <!-- Start Modals Section -->
     <!-- Start Orientaçoes Section -->
     <div class="section-modal modal fade" id="orientacoes-modal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-content">
@@ -200,8 +270,14 @@
                         <p>Criamos materiais que o auxiliará no treinamento dos recursos do sistema. Os treinamentos estão separados por módulos na página principal.</p>
                         <p>Antes de começar, entenda melhor como é o fluxo de informações em um laboratório e aprenda os recursos de navegação.</p>
                         <div class="row">
+                            
+                            <br>
+                            <br>
+
                             <h4><a href="#" class="fa fa-arrow-right" data-toggle="collapse" data-target="#Fluxo_de_trabalho"> Fluxo de trabalho de um laboratório </a></h4></br>
                             <div id="Fluxo_de_trabalho" class="collapse">
+                                
+                                
                                 <img src="images/1/Fluxo_de_trabalho.bmp" class="img-responsive center-block" alt="Fluxo">
                             </div>
                         </div>
@@ -237,6 +313,8 @@
                 <div class="row">
                     <div class="text-center">
                         <p>Entenda o que é backup e qual a importância dele para o seu laboratório.</p>
+                        <br>
+                        <div class="media"></div>
                         <h4><a href="pdfs/2/Backup_sistema.pdf" target="_blank"><i class="fa fa-arrow-right"> Backup do Sistema </i></a></h4></br>
                     </div>
                 </div>
@@ -881,6 +959,9 @@
                     <div class="text-center">
                         <p>O módulo de convênios do sistema permite a configuração dos contratos e preços dos convênios.</p>
                         <p>Aprenda as funções essenciais desse módulo.</p>
+                        <br> 
+                        <hr class="media">
+
                         <h4><a href="pdfs/8/03_Convenios_Locais_Atendimento.pdf" target="_blank"> <i class="fa fa-arrow-right"> Local de atendimento </i></a></h4></br>
                         <h4><a href="pdfs/8/01_Convenios_Operadora.pdf" target="_blank"> <i class="fa fa-arrow-right"> Operadoras </i></a></h4></br>
                         <h4><a href="pdfs/8/02_Convenios_Convenios.pdf" target="_blank"> <i class="fa fa-arrow-right"> Convênios </i></a></h4></br>
@@ -891,6 +972,8 @@
             </div>
         </div>
     </div>
+
+
     <!-- End Convenio Section -->
     <!-- Start apoio Section -->
     <div class="section-modal modal fade" id="apoio-modal" tabindex="-1" role="dialog" aria-hidden="true">
@@ -913,7 +996,9 @@
                         <li>Antes de iniciar, entenda o processo de integração do sistema com esses apoios.</li>
                     </div>
                     </br>
+                    <hr class="media">
                     <div class="text-center">
+                        
                         <h4 class="disabled"><a href="#" class="disabled">Geral</a></h4>
                         <li>Configuração valida para todos os Laboratórios de Apoio.</li>
                         <h4> <a data-toggle="collapse" data-target="#Apoio_Envio_Retorno_Introducao"><i class="fa fa-arrow-right">1 - Introdução</i></a></h4>
@@ -930,12 +1015,12 @@
                             </div>
                         </div>
                         <h4><a href="pdfs/9/01_Configuracao_Apoio_Pastas.pdf" target="_blank"><i class="fa fa-arrow-right">2 - Cadastro Apoio/Pastas </i></a></h4>
-                        <hr class="media">
-                        <br>
+                        
+                        
                         <h4 class="disabled"><a href="#" class="disabled">3 - Configuração de exames</a></h4>
                         <li>A configuração do exame pode ser realizada de duas formas.</li>
                         <li>Configurando pelo cadastro automático de exames ou realizando o Cadastro manual do exame.</li>
-                        <br>
+                        
                         <h4> <a data-toggle="collapse" data-target="#Apoio_Importacao_Automatica"><i class="fa fa-arrow-right">Cadastro automático de exames</i></a></h4>
                         <div id="Apoio_Importacao_Automatica" class="collapse">
                             <div class="media">
@@ -1032,9 +1117,9 @@
                             </div>
                         </div>
                         <!-- /.row -->
-                        <h4><a href="pdfs/9/Sistema_Pardini.pdf" target="_blank"><i class="fa fa-arrow-right"> Sistema do Pardini </i></a></h4>
                     </div>
                     <!-- /.row -->
+                    <h4><a href="pdfs/9/Sistema_Pardini.pdf" target="_blank"><i class="fa fa-arrow-right"> Sistema do Pardini </i></a></h4>
                     </br>
                     <h4 class="disabled"><a href="#" class="disabled">Cadastro manual de exame - Diagnósticos do Brasil </a></h4>
                     <div class="row sumario-video">
@@ -1112,11 +1197,10 @@
                             </div>
                         </div>
                         <!-- /.row -->
-                        <h4><a href="pdfs/9/Sistema_Solucao.pdf" target="_blank"><i class="fa fa-arrow-right"> Sistema do Solução </i></a></h4>
                     </div>
                     <!-- /.row -->
-                    <hr class="media">
-                    <br>
+                    <h4><a href="pdfs/9/Sistema_Solucao.pdf" target="_blank"><i class="fa fa-arrow-right"> Sistema do Solução </i></a></h4>
+                   
                     <div class="text-center">
                         <h4 class="disabled"><a href="#">4 - Envio de exames</a></h4>
                         <li>O Envio do exame pode ser realizado de duas formas. Envio padrão (Álvaro e Solução) e WebService.</li>
@@ -1424,6 +1508,43 @@
     </div>
     <!-- End Recursos Section -->
     <!-- Start Relatorios Section -->
+    <div class="section-modal modal fade" id="downloads-modal" tabindex="-1" role="dialog" aria-hidden="true">
+        <div class="modal-content">
+            <div class="close-modal" data-dismiss="modal">
+                <div class="lr">
+                    <div class="rl">
+                    </div>
+                </div>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="section-title text-center">
+                        <h3>DOWNLOADS</h3>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="text-center">
+                        <p>Ferramentas auxiliares.</p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="downloads-grid">
+                        <a class="download-card" id="download-tv" href="https://www.teamviewer.com/pt-br/download/windows/" target="_blank">
+                            <img class="download-card-icon" src="images/TV.jpg" alt="Team Viewer">
+                            <span class="download-card-title">Team Viewer</span>
+                            <span class="download-card-desc">Ferramenta completa para conexões externas.</span>
+                        </a>
+                        <a class="download-card" id="download-tv-hot" href="Download/HotSoft_QuickSupport.exe" target="_blank">
+                            <img class="download-card-icon" src="images/TV_HOT.jpg" alt="HotSoft QuickSupport">
+                            <span class="download-card-title">HotSoft QuickSupport</span>
+                            <span class="download-card-desc">Ferramenta basica para conexões externas.</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Downloads Section -->
     <div class="section-modal modal fade" id="relatorios-modal" tabindex="-1" role="dialog" aria-hidden="true">
         <div class="modal-content">
             <div class="close-modal" data-dismiss="modal">
@@ -1441,6 +1562,9 @@
                 <div class="row">
                     <div class="text-center">
                         <li>Para navegar e visualizar nossos relatórios disponíveis.</li>
+                        <br>
+                        <div class="media">
+
                         <h4><a href="https://drive.google.com/drive/folders/0ByBTFIzA_QkDWWJWcmowdnFaakk" target="_blank"><i class="fa fa-arrow-right"> Acesse</i></a></h4>
                     </div>
                     </br>
@@ -1450,6 +1574,7 @@
         </div>
     </div>
     <!-- End Relatorios Section -->
+    <!-- End Modals Section -->
 </body>
 
 </html>

@@ -9,19 +9,129 @@
     --text-dark: #1A202C;
     --text-light: #718096;
     --bg-light: #F7FAFC;
-    --border-light: #E2E8F0;
+    /* Cores quase idênticas entre o fundo da página e o dos cards —
+       a distinção visual do card não vem mais de um salto de cor, e
+       sim da borda (1px, tom levemente mais escuro que o próprio
+       card) e da sombra suave. Isso é o que a referência mostra e o
+       que foi pedido: cards "quase da mesma cor do background". */
+    --page-bg: #F2F3F5;
+    --card-bg: #FAFBFC;
+    --border-light: #E6E8EC;
+
+    /* tamanho do botão de fechar do modal centralizado em uma variável,
+       assim os elementos internos (.lr, .rl) escalam junto sem duplicar
+       o mesmo clamp() em três lugares */
+    --modal-close-size: clamp(36px, 5vw, 50px);
+
+    /* Largura útil do container principal (header/corpo/rodapé) —
+       cresce suavemente em telas muito largas (2K/ultrawide) e nunca
+       ultrapassa a viewport (mobile permanece 100vw, sem scroll
+       horizontal). Não tem nenhuma relação com o encaixe vertical: só
+       decide a largura máxima do conteúdo. */
+    --container-pad: clamp(15px, 4vw, 56px);
+    --container-w: min(100vw, max(1320px, min(66vw, 1680px)));
+
+    /* Única fonte de verdade do número de colunas/linhas do
+       .menu-grid. O ENCAIXE VERTICAL não depende mais de nenhum
+       cálculo estimado de altura disponível (dvh menos cabeçalho menos
+       rodapé menos paddings, como antes): cabeçalho e rodapé usam
+       flex:0 0 auto (tamanho natural do próprio conteúdo) e o
+       .menu-grid usa flex:1 1 auto — ocupa exatamente o espaço que
+       sobra, o que quer que sobre, calculado pelo próprio motor de
+       layout do navegador em tempo real, nunca por uma estimativa em
+       CSS. Dentro do grid, linhas/colunas em "1fr" dividem esse espaço
+       de forma proporcional, e cada card usa container query units
+       (cqw, ver .menu-item mais abaixo) para escalar padding/ícone/
+       fonte de acordo com o tamanho REAL que o card recebeu — nunca
+       com base em uma largura "adivinhada". Resultado: o conteúdo
+       sempre cabe exatamente no viewport, em qualquer combinação de
+       largura/altura, sem scroll e sem overflow:hidden mascarando
+       nada — porque não existe conteúdo sobrando para esconder. */
+    --grid-cols: 5;
+    --grid-rows: 3;
 }
 
+/* box-sizing global: evita que padding/border somem largura extra e causem
+   overflow horizontal em qualquer elemento do projeto (mesmo padrão do
+   arquivo de referência) */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+/* Safenet: nenhuma imagem do projeto deve ultrapassar seu container,
+   independentemente de possuir ou não uma regra de tamanho específica */
+img {
+    max-width: 100%;
+    height: auto;
+}
+
+/* Container fluido: substitui as larguras FIXAS em px que o Bootstrap
+   aplica ao .container por breakpoint (750/970/1170px). Essa largura fixa
+   é a causa raiz do bug do modal em telas grandes: o .container que fica
+   dentro do .modal-content tentava assumir 1170px mesmo quando a caixa do
+   modal (limitada a min(1100px,92vw)) era mais estreita que isso, gerando
+   overflow/corte de conteúdo — só aparecia em telas largas porque é
+   exatamente nesse ponto que o Bootstrap troca para os breakpoints fixos
+   (abaixo de 768px o .container já era fluido, por isso funcionava bem
+   nas telas menores).
+   Aqui o .container passa a ter uma largura máxima única e um respiro
+   lateral (padding) que cresce suavemente com a viewport — é isso que cria
+   a "margem" pedida no item 4 em qualquer seção (cabeçalho, corpo e
+   rodapé), sem quebrar em nenhuma resolução. Regras mais específicas
+   (.mainbody-section .container, .section-modal .modal-content .container)
+   continuam podendo sobrescrever isso quando o contexto exigir. */
+.container {
+    width: 100%;
+    max-width: var(--container-w);
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: clamp(15px, 4vw, 56px);
+    padding-right: clamp(15px, 4vw, 56px);
+}
+
+/* ============================================================
+   .container — limite de 80% SOMENTE no desktop
+   ------------------------------------------------------------
+   Em Full HD/2K, limitar o container a 80% da viewport melhora a
+   distribuição do conteúdo (menos "esticado"). Só que aplicar esse
+   mesmo limite sem media query também reduz a largura disponível em
+   telas pequenas — e é exatamente isso que estava cortando os
+   ícones/seta dos cards no mobile: o card fica mais estreito, o
+   aspect-ratio de .menu-item calcula uma altura menor, e não sobra
+   espaço vertical para ícone + título + subtítulo + seta.
+   Por isso o max-width:80% fica isolado dentro de "min-width:901px"
+   (o mesmo ponto de corte já usado mais abaixo no arquivo para
+   separar tablet/mobile — @media (max-width:900px) — de desktop).
+   Abaixo de 901px, continua valendo a regra base acima
+   (max-width: var(--container-w)), exatamente como já estava — é o
+   comportamento que já funciona bem no mobile e não deve mudar. */
+@media (min-width: 901px) {
+    .container {
+        max-width: 80%;
+    }
+}
+
+html {
+    height: 100%;
+}
+
+/* Layout de 3 blocos (header fixo + corpo flexível + footer fixo), igual
+   ao arquivo de referência: a página em si não rola; quem rola, se
+   precisar, é o .mainbody-section internamente. */
 body {
-    background: linear-gradient(135deg, #F7FAFC 0%, #E8F2FF 100%);
+    background: var(--page-bg);
     font-family: 'Poppins', sans-serif;
     color: var(--text-dark);
     line-height: 1.6;
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
+    height: 100vh;
+    height: 100dvh; /* corrige a barra de endereço móvel sem quebrar navegadores antigos */
     margin: 0;
     padding: 0;
+    overflow: hidden;
 }
 
 a,
@@ -55,7 +165,7 @@ a:hover {
 
 p {
     font-family: 'Poppins', sans-serif;
-    font-size: 14px;
+    font-size: clamp(11px, 1.6vh, 14px);
     line-height: 1.8;
     color: var(--text-light);
 }
@@ -64,150 +174,766 @@ p {
 
 .section-title h3 {
     color: var(--text-dark) !important;
-    font-size: 32px;
+    font-size: clamp(15px, 3.4vh, 30px);
     font-family: 'Poppins', sans-serif;
     font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 0.05em;
 }
+
+/**** Start Semantic HTML Elements ****/
+
+/* Elementos semânticos herdam o comportamento flexbox do body */
+header {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+main {
+    flex: 1;
+    width: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+footer {
+    flex-shrink: 0;
+    width: 100%;
+}
+
+/**** End Semantic HTML Elements ****/
 
 /**** Start Logo Section ****/
 
+/* Cabeçalho com 3 áreas: logo HotSoft (esquerda), slogan + barra teal
+   (centro) e logo LabPlus (direita). Uma borda inferior igual à do
+   rodapé (mesma espessura/cor do border-top do .copyright) fecha
+   visualmente o cabeçalho. */
+/* Altura do header calculada em vh/dvh (~20% da tela) como um PISO
+   (min-height), não mais como altura travada — mesmo raciocínio da
+   correção do footer logo abaixo: se o conteúdo (logo + slogan)
+   precisar de mais espaço do que 20vh em algum caso extremo, o header
+   cresce em vez de cortar, ao invés de arriscar clipar algo com
+   overflow:hidden. Em telas normais, o conteúdo é sempre menor que 20vh,
+   então na prática o header fica exatamente com essa proporção. O piso
+   em px (64px) é só uma rede de segurança para telas extremamente
+   baixas. display:flex + justify-content:center centraliza o conteúdo
+   verticalmente dentro dessa altura. */
 #logo-section {
-    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
-    padding: 15px 0;
-    box-shadow: 0 4px 20px rgba(74, 95, 234, 0.1);
+    background:
+        linear-gradient(115deg, rgba(255, 255, 255, 0.08) 0%, transparent 45%),
+        linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+    /* Padding em vh (encolhe/cresce com a altura da tela), mas SEM
+       min-height fixo/estimado: a altura real do cabeçalho passa a ser
+       simplesmente o que o próprio conteúdo (logos + padding) precisa —
+       nunca mais nem menos. Como o cabeçalho é flex:0 0 auto dentro do
+       body (ver regra "header" mais abaixo), ele nunca "rouba" espaço
+       do grid além do que realmente usa, em nenhuma resolução. */
+    padding: clamp(6px, 1.6vh, 16px) 0;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow: hidden;
 }
 
-#logo-section .logo {
-    text-align: center;
+.header-flex {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: clamp(12px, 2.2vw, 28px);
+    width: 100%;
 }
 
-#logo-section .logo span {
+.header-logo-left,
+.header-logo-right {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    min-width: 0;
+}
+
+/* Bloco central do cabeçalho (slogan): eixo vertical alinhado ao
+   mesmo centro dos dois logos (herdado de align-items:center em
+   .header-flex, ver acima) — regra única (antes duplicada em dois
+   blocos separados no arquivo, com valores se sobrescrevendo por
+   cascata; mesmo resultado final, só que agora explícito e sem risco
+   de um dos dois blocos ser editado no futuro sem o outro). */
+.header-slogan-wrap {
+    flex: 0 1 auto;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    min-width: 0;
+    padding-left: clamp(12px, 2.2vw, 28px);
+    border-left: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+/* Logo HotSoft responsiva: altura em vh (para não comer espaço vertical
+   em telas baixas) com largura máxima em vw só como rede de segurança
+   horizontal; substitui o style="max-width:220px;max-height:150px..."
+   que estava inline no HTML e travava a responsividade (estilo inline
+   sempre vence CSS externo). */
+#logo-section .logo-img {
+    height: clamp(35px, 8vh, 60px);
+    width: auto;
+    max-width: 50vw;
+    max-height: none;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.slogan-bar {
+    display: none;
+}
+
+/* Logo LabPlus no cabeçalho (movida do meio da tela para cá): sem o
+   filtro de inverter cor, já que a marca LabPlus tem cores próprias.
+   Altura no MESMO clamp() da logo HotSoft (#logo-section .logo-img,
+   acima) — antes o teto era 120px contra 60px da HotSoft, quase o
+   dobro: como as duas ficam lado a lado na mesma linha vertical
+   (align-items:center em .header-flex), essa diferença de tamanho é
+   o que fazia a logo da direita "estourar" a altura do cabeçalho e
+   parecer desalinhada. Com o mesmo clamp(), as duas logos crescem e
+   encolhem sempre na mesma proporção entre si, em qualquer resolução
+   (MacBook, 1366, 2K ou mobile), mantendo o mesmo eixo vertical. */
+.labplus-header-img {
+    height: clamp(35px, 8vh, 60px);
+    width: auto;
+    max-width: min(190px, 30vw);
+    object-fit: contain;
+    filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.15));
+}
+
+#logo-section .logo-slogan {
     color: rgba(255, 255, 255, 0.95);
-    font-size: 16px;
-    font-weight: 500;
-    letter-spacing: 0.5px;
+    /* Levemente menor que antes (era clamp(11px, 2.4vh, 20px)) */
+    font-size: clamp(7px, 2.1vh, 18px);
+    font-weight: 10;
+    letter-spacing: 0.04em;
     display: block;
-    margin-top: 20px;
+    text-align: left;
+    line-height: 1.35;
+    max-width: 60vh;
+    /* continua em uma linha só quando o espaço entre as duas logos
+       permitir (o container flex é quem decide isso); quando precisar
+       quebrar, "balance" distribui o texto entre as linhas de forma mais
+       agradável do que a quebra padrão do navegador (linha 1 gigante +
+       "sobra" na linha 2). Sem suporte, cai no wrap normal do navegador. */
+    text-wrap: balance;
+    overflow-wrap: normal;
+    word-break: normal;
+    hyphens: none;
+}
+
+/* Barra sob o slogan na cor de destaque teal (#0ECEAB / --accent-teal) 
+.slogan-bar {
+    display: block;
+    width: clamp(44px, 6vw, 100px);
+    height: clamp(2px, 0.5vh, 5px);
+    background-color: var(--accent-teal);
+    border-radius: 2px;
+    margin-top: clamp(4px, 1vh, 10px);
+}
+    */
+
+/* Telas muito pequenas (largura OU altura pequenas): o slogan some por
+   completo e o cabeçalho passa a mostrar só as duas logos, uma do lado
+   da outra, centralizadas — sem o slogan puxando o layout para os
+   extremos (justify-content:space-between viraria as logos para os
+   cantos sem o bloco do slogan no meio). */
+@media (max-width: 480px), (max-height: 480px) {
+    .header-slogan-wrap {
+        display: none;
+    }
+
+    .header-flex {
+        justify-content: center;
+        gap: clamp(10px, 4vw, 24px);
+    }
+}
+
+/* Bloco "Central de Treinamentos" no cabeçalho: ícone de capelo de
+   formatura + texto, empurrado para a extremidade direita do cabeçalho
+   (mesmo espaço onde antes ficava a logo LabPlus, hoje removida) via
+   margin-left:auto — não interfere no alinhamento vertical dos outros
+   dois blocos (align-items:center já herdado de .header-flex). Mesmo
+   divisor sutil (borda + padding) já usado em .header-slogan-wrap, para
+   manter a mesma linguagem visual entre os blocos do cabeçalho. */
+.header-training-badge {
+    display: flex;
+    align-items: center;
+    gap: clamp(6px, 1vw, 10px);
+    margin-left: auto;
+    padding-left: clamp(12px, 2.2vw, 28px);
+    border-left: 1px solid rgba(255, 255, 255, 0.35);
+    /* Não encolhe: com flex-shrink:1 o badge era espremido quando as três
+       áreas do cabeçalho (logo + slogan + badge) não cabiam lado a lado
+       (tablet), mas o texto tem white-space:nowrap e por isso não
+       quebrava — vazava para fora do badge e era cortado pelo
+       overflow:hidden do #logo-section. Agora quem cede espaço é o
+       slogan, que já pode quebrar linha. Em telas menores (≤720px) há um
+       ajuste adicional logo abaixo. */
+    flex: 0 0 auto;
+    min-width: 0;
+}
+
+.header-training-icon {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.95);
+}
+
+/* Ícone em SVG próprio (capelo de formatura): simplificado para um
+   contorno fino (stroke-only, sem preenchimento pesado) e com o mesmo
+   porte visual do texto ao lado — deixou de usar um clamp() alto
+   (chegava a 32px) para acompanhar de perto a altura da própria linha
+   de texto (.header-training-text, abaixo), evitando que o ícone
+   pareça "grande/pesado" perto do resto do cabeçalho. */
+.header-training-icon svg {
+    width: clamp(15px, 2.4vh, 20px);
+    height: clamp(15px, 2.4vh, 20px);
+    display: block;
+}
+
+/* Mesmo estilo/peso do slogan ao lado (#logo-section .logo-slogan,
+   acima): mesma font-family (herdada do body, Poppins), mesmo
+   font-weight (10 — bem longe de bold) e mesmo letter-spacing/line-height,
+   para os dois blocos do cabeçalho lerem como a mesma "voz" tipográfica
+   em vez de um deles parecer mais forte/grosso que o outro. */
+.header-training-text {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 10;
+    letter-spacing: 0.04em;
+    font-size: clamp(10px, 1.8vh, 15px);
+    color: rgba(255, 255, 255, 0.95);
+    line-height: 1.35;
+    white-space: nowrap;
+}
+
+/* Tablets pequenos (601–720px): se logo + slogan + badge não couberem,
+   o rótulo passa a poder quebrar em duas linhas ("Central de /
+   Treinamentos") e o badge divide o aperto com o slogan, nunca ficando
+   menor que a palavra mais longa — assim o texto fica sempre inteiro
+   visível. Acima de 720px nada muda: continua em uma linha só. */
+@media (max-width: 720px) {
+    .header-training-badge {
+        flex: 0 1 auto;
+        min-width: min-content;
+    }
+
+    .header-training-text {
+        white-space: normal;
+    }
+}
+
+/* Some em telas de celular (largura pequena), mantendo o cabeçalho
+   enxuto nesse tamanho — mesma faixa "mobile" já usada em outras
+   decisões do projeto (botão de suporte flutuante, colunas do grid). */
+@media (max-width: 600px) {
+    .header-training-badge {
+        display: none;
+    }
 }
 
 /**** Start Background Color ****/
 
-.blue {
-    background: linear-gradient(135deg, #4A5FEA 0%, #3B4FD8 100%);
+.menu-icon-badge.blue {
+    background: #E7EBFD;
+    color: #4A5FEA;
 }
 
-.ocean-blue {
-    background: linear-gradient(135deg, #3B4FD8 0%, #2E3FA8 100%);
+.menu-icon-badge.ocean-blue {
+    background: #E3F1FE;
+    color: #2E6FD8;
 }
 
-.green {
-    background: linear-gradient(135deg, #2DD4BF 0%, #14B8A6 100%);
+.menu-icon-badge.green {
+    background: #E1FBF6;
+    color: #0D9C86;
 }
 
-.red {
-    background: linear-gradient(135deg, #F87171 0%, #DC2626 100%);
+.menu-icon-badge.red {
+    background: #FDE9E9;
+    color: #DC2626;
 }
 
-.light-red {
-    background: linear-gradient(135deg, #FB7185 0%, #E11D48 100%);
+.menu-icon-badge.light-red {
+    background: #FCE9EE;
+    color: #E11D48;
 }
 
-.light-orange {
-    background: linear-gradient(135deg, #FBBF24 0%, #F59E0B 100%);
+.menu-icon-badge.light-orange {
+    background: #FEF3DA;
+    color: #D97706;
 }
 
-.color {
-    background: linear-gradient(135deg, #0ECEAB 0%, #059669 100%);
+.menu-icon-badge.color {
+    background: #DCF7EF;
+    color: #059669;
 }
 
 
 /**** Start Main Body Section ****/
 
+/* Corpo: ocupa exatamente o espaço restante entre header e footer
+   (flex:1 1 auto dentro do body, que é flex-column com altura
+   100dvh). Nada aqui é estimado em px/vh: quem decide a altura real
+   deste bloco é o próprio motor de flexbox do navegador, a partir do
+   espaço que sobra depois do cabeçalho e do rodapé (ambos com altura
+   natural, flex:0 0 auto). O grid de cards, mais abaixo, também usa
+   flex:1 1 auto e preenche exatamente o que sobrar aqui dentro — por
+   isso o conteúdo cabe sempre, em qualquer altura de tela, sem
+   precisar prever "quanto sobra de dvh de verdade" como antes. */
 .mainbody-section {
-    padding-top: 20px;
-    padding-bottom: 20px;
-    background: linear-gradient(180deg, #F7FAFC 0%, #E8F2FF 100%);
-    flex: 1;
+    padding: clamp(6px, 1.4vh, 20px) 0;
+    background: var(--page-bg);
+    flex: 1 1 auto;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    /* overflow:hidden aqui é só uma rede de segurança estrutural (não
+       é a solução do encaixe): pelo desenho do layout — header/footer
+       de altura natural + grid flex:1 1 auto preenchendo o restante —
+       o conteúdo nunca deveria ultrapassar este espaço, em nenhuma
+       resolução. Nunca existe conteúdo "sobrando" para esconder. */
+    overflow: hidden;
+    width: 100%;
+    position: relative;
+}
+
+.mainbody-section .container {
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+}
+
+/* Bloco título + subtítulo + card de "Precisa de ajuda?", acima do
+   grid de módulos: altura natural (flex:0 0 auto, herdado por não ter
+   flex declarado aqui — só o .menu-grid abaixo recebe flex:1), então
+   nunca precisa de um orçamento de altura pré-calculado. */
+.mainbody-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: clamp(12px, 2.4vw, 40px);
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    text-align: left;
+    margin-bottom: clamp(8px, 2vh, 26px);
+    /* Desce o título e o card "Precisa de ajuda?" um pouco, sem mexer no
+       resto: position:relative + top desloca só o desenho deste bloco,
+       sem alterar o fluxo — o grid de cards, o cabeçalho e o rodapé
+       ficam exatamente onde já estavam. (Não usar transform aqui: ele
+       quebraria o position:fixed do botão de suporte no mobile.) */
+    position: relative;
+    top: clamp(12px, 2.6vh, 30px);
+}
+
+
+/* Título e card "Precisa de ajuda?" sempre lado a lado (≥601px).
+   Antes, .mainbody-top usava flex-wrap:wrap: quando a largura mínima
+   natural do título + a do card passava da largura do container (é o
+   caso de 1559×975, onde a altura maior aumenta o tamanho das fontes,
+   que são em vh), o card "sobrava" e caía para a linha de baixo.
+   Com nowrap, quem cede espaço é o bloco do título (flex-shrink
+   padrão + min-width:0 abaixo, o texto simplesmente quebra em mais uma
+   linha se precisar), enquanto o card mantém o tamanho próprio
+   (flex-shrink:0 já definido em .support-box). Abaixo de 600px nada
+   muda: lá o card vira botão flutuante (position:fixed) e sai do
+   fluxo. */
+@media (min-width: 601px) {
+    .mainbody-top {
+        flex-wrap: nowrap;
+    }
+}
+
+.mainbody-title {
+    min-width: 0;
+}
+
+.mainbody-title h1 {
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 700;
+    font-size: clamp(20px, 3.6vh, 34px);
+    color: var(--text-dark);
+    line-height: 1.25;
+    overflow-wrap: break-word;
+}
+
+.mainbody-title h1 .highlight {
+    color: var(--primary-blue);
+}
+
+.mainbody-title p {
+    margin: clamp(4px, 1vh, 10px) 0 0 0;
+    
+    font-size: clamp(11px, 1.7vh, 15px);
+    color: var(--text-light);
+    line-height: 1.6;
+}
+
+/* Card "Precisa de ajuda?" (desktop): fica dentro do fluxo de
+   .mainbody-top, ao lado do título (flex/space-between já definido em
+   .mainbody-top), como uma área discreta de suporte — ícone +
+   texto + botão "Abrir suporte" lado a lado. O link vai direto para o
+   chat de suporte (sem modal): clique já navega, sem tela intermediária.
+   Em telas mobile (≤600px) este mesmo elemento vira um botão flutuante
+   (FAB), só com o ícone — ver media query logo abaixo. */
+.support-box {
+    display: flex;
+    align-items: center;
+    gap: clamp(10px, 1.4vw, 18px);
+    flex-shrink: 0;
+    max-width: 100%;
+    padding: clamp(10px, 1.6vh, 16px) clamp(14px, 1.8vw, 22px);
+    background: #FFFFFF;
+    border: 1px solid var(--border-light);
+    border-radius: clamp(12px, 1vw, 18px);
+    box-shadow: 0 2px 6px rgba(16, 24, 40, 0.05);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+.support-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 20px rgba(74, 95, 234, 0.14);
+    border-color: transparent;
+    text-decoration: none;
+}
+
+.support-box .support-icon {
+    flex: 0 0 auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    overflow-y: auto;
+    width: clamp(36px, 4vh, 46px);
+    height: clamp(36px, 4vh, 46px);
+    border-radius: 50%;
+    background: #E7EBFD;
+    color: #4A5FEA;
+    /* ícone um pouco maior que o anterior (era clamp(15px,1.9vh,20px)),
+       mantendo o mesmo estilo (badge circular colorido) */
+    font-size: clamp(17px, 2.2vh, 23px);
+}
+
+/* Ícone de headset (SVG próprio, sem depender de glifo de biblioteca de
+   ícones) — herda a cor do badge via currentColor e escala com o
+   font-size definido acima em .support-icon */
+.support-icon-svg {
+    width: 1em;
+    height: 1em;
+    display: block;
+}
+
+.support-box .support-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    text-align: left;
+}
+
+.support-box .support-text strong {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: clamp(12px, 1.5vh, 15px);
+    color: var(--text-dark);
+    line-height: 1.3;
+}
+
+.support-box .support-text span {
+    font-family: 'Poppins', sans-serif;
+    font-size: clamp(10px, 1.2vh, 12.5px);
+    color: var(--text-light);
+    line-height: 1.35;
+    white-space: nowrap;
+}
+
+.support-box .support-btn {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: clamp(8px, 1.1vh, 11px) clamp(14px, 1.5vw, 18px);
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+    color: #fff;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: clamp(10px, 1.3vh, 13px);
+    white-space: nowrap;
+}
+
+/* Mobile (≤600px): o card vira botão flutuante (padrão WhatsApp),
+   fora do fluxo do documento (position:fixed) — mesma técnica já usada
+   pela antiga logo LabPlus flutuante. Título/descrição e o rótulo
+   "Abrir suporte" continuam no HTML (nada é removido do DOM), apenas
+   ocultos visualmente para o botão ficar compacto/circular, e
+   .support-icon passa a preencher o círculo inteiro. */
+@media (max-width: 600px) {
+    .support-box {
+        position: fixed;
+        right: clamp(14px, 3vw, 32px);
+        bottom: clamp(14px, 3vh, 32px);
+        z-index: 1000; /* acima do conteúdo da página, abaixo dos modais (1050+) */
+        justify-content: center;
+        gap: 0;
+        width: clamp(46px, 9vh, 62px);
+        height: clamp(46px, 9vh, 62px);
+        /* nunca maior que a viewport, mesmo em telas extremas */
+        max-width: calc(100vw - 24px);
+        max-height: calc(100dvh - 24px);
+        padding: 0;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        border: none;
+        box-shadow: 0 8px 22px rgba(74, 95, 234, 0.35);
+        overflow: hidden;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .support-box:hover {
+        transform: translateY(-4px) scale(1.06);
+        box-shadow: 0 14px 30px rgba(74, 95, 234, 0.45);
+    }
+
+    .support-box .support-icon {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        background: transparent;
+        color: #fff;
+        /* ícone um pouco maior que o anterior (era clamp(18px,3.4vh,26px)) */
+        font-size: clamp(21px, 3.9vh, 30px);
+    }
+
+    .support-box .support-text,
+    .support-box .support-btn {
+        display: none;
+    }
+}
+
+/* ============================================================
+   Grid dos 15 itens de menu — sistema ÚNICO e fluido, sem nenhuma
+   regra isolada por resolução (nem "1366x768", nem "até 1600px", nem
+   "a partir de 1601px"). O mesmo conjunto de regras abaixo vale para
+   QUALQUER largura/altura de tela; o que muda de uma tela para outra
+   é só o valor que os próprios clamp()/cqw calculam, nunca a regra em
+   si.
+
+   LARGURA de cada card: vem do grid (1fr, repartindo a largura do
+   .menu-grid entre --grid-cols colunas) — sempre proporcional ao
+   viewport.
+
+   ALTURA de cada card: deixa de vir da altura da viewport (o antigo
+   height:100% dividindo o grid em 1fr de altura, que é a causa raiz
+   do problema relatado — em telas mais altas o card ficava cada vez
+   mais alto, sobrando espaço vazio dentro dele). Passa a vir de
+   aspect-ratio, calculado a partir da própria referência 1366×768
+   (proporção "baixa e larga" ~173/100). Como a largura do card já é
+   proporcional ao viewport, a altura (função da largura) também é —
+   e a MESMA proporção da referência se mantém em qualquer resolução,
+   sem precisar prever nem tratar nenhuma faixa específica.
+
+   MIOLO do card (padding, ícone, fontes, gaps): usa cqw (container
+   query units = % da largura REAL do próprio card, medida pelo
+   navegador em tempo real via container-type:inline-size). Por isso
+   ícone, título, subtítulo e seta crescem/encolhem sempre na MESMA
+   proporção entre si e em relação ao card, qualquer que seja o
+   tamanho que o card receba — sem "saltos" entre faixas de largura.
+
+   ENCAIXE VERTICAL das 3 linhas: .menu-grid recebe todo o espaço que
+   sobra entre cabeçalho, bloco de título e rodapé (flex:1 1 auto,
+   calculado pelo próprio motor de layout do navegador — nunca por uma
+   estimativa em CSS) e reparte esse espaço em partes iguais entre as
+   3 linhas via align-content:space-evenly. Se sobrar altura (telas
+   muito altas), o excedente vira respiro entre as linhas, nunca um
+   estiramento do card; se faltar altura, o espaçamento (limitado por
+   um piso em row-gap) encolhe primeiro — o card em si só encolhe por
+   último, e sempre mantendo sua proporção fixa. Resultado: nunca há
+   scroll, em nenhuma combinação de largura/altura.
+   ============================================================ */
+.menu-grid {
+    flex: 1 1 auto;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: repeat(var(--grid-cols), 1fr);
+    grid-template-rows: repeat(var(--grid-rows), auto);
+    align-content: space-evenly;
+    justify-items: stretch;
+    column-gap: clamp(8px, 1.6vw, 28px);
+    row-gap: clamp(10px, 2.4vh, 40px);
+    width: 100%;
+    height: 100%;
 }
 
 .menu-item {
-    color: #fff;
-    padding: 12px 10px;
-    margin-bottom: 12px;
-    border-radius: 12px;
+    color: var(--text-dark);
+    /* Container query: todo o miolo deste card (padding, ícone,
+       título, subtítulo, seta) se dimensiona como % da LARGURA REAL
+       deste card específico (1cqw = 1% da inline-size), nunca com
+       base numa largura "adivinhada" ou numa faixa de resolução. */
+    container-type: inline-size;
+    container-name: card;
+    width: 100%;
+    height: auto;
+    /* Proporção fixa "baixa e larga" tirada da própria referência
+       1366×768 — garante a MESMA forma de card (e a mesma sensação de
+       espaço interno) em qualquer viewport, sem exceção para nenhuma
+       resolução específica. */
+    aspect-ratio: 173 / 100;
+    border-radius: clamp(8px, 1.4cqw, 16px);
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.07);
+    background: var(--card-bg);
+    border: 1px solid var(--border-light);
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.05), 0 3px 8px rgba(16, 24, 40, 0.04);
     cursor: pointer;
-    border: 0;
     position: relative;
     overflow: hidden;
-    min-height: 130px;
+    min-height: 0;
+    min-width: 0;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-}
-
-.menu-item::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255, 255, 255, 0.3) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.3s ease;
 }
 
 .menu-item:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 12px 20px rgba(74, 95, 234, 0.2);
+    transform: translateY(-4px);
+    box-shadow: 0 12px 20px rgba(74, 95, 234, 0.14);
+    border-color: transparent;
 }
 
-.menu-item:hover::before {
-    opacity: 1;
-}
-
+/* Conteúdo interno: ícone e título na mesma linha, subtítulo logo
+   abaixo e seta logo abaixo do subtítulo — um único bloco compacto,
+   centralizado na altura do card. Um único layout de conteúdo para
+   QUALQUER tamanho de card: como o card mantém sempre a mesma
+   proporção (aspect-ratio acima) e todo o miolo escala em cqw, o
+   resultado visual é sempre o mesmo (igual à referência), só que
+   maior ou menor conforme a tela. */
 .menu-item a {
-    color: #fff;
-    display: block;
+    color: inherit;
+    display: grid;
+    grid-template-columns: clamp(30px, 17cqw, 58px) 1fr;
+    grid-template-rows: auto auto auto;
+    grid-template-areas:
+        "icon  title"
+        ".     desc"
+        ".     arrow";
+    align-items: center;
+    /* Mantém o bloco compacto (tamanho do próprio conteúdo) e
+       centralizado no card, em vez de esticar as 3 linhas "auto" para
+       preencher a altura toda — é isso que elimina o afastamento
+       entre ícone/título, subtítulo e seta em cards mais altos. */
+    align-content: center;
+    justify-content: normal;
+    column-gap: clamp(8px, 3cqw, 14px);
+    row-gap: clamp(2px, 1cqw, 6px);
+    padding: clamp(12px, 7cqw, 22px);
+    width: 100%;
+    height: 100%;
+    text-align: left;
     transition: all 0.3s ease;
     position: relative;
-    z-index: 1;
-}
-
-.menu-item a p {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 600;
-    font-size: 12px;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin: 8px 0 0 0;
-    color: #FFFFFF !important;
-}
-
-.menu-item a i {
-    font-size: 38px;
-    padding-bottom: 10px;
-    transition: transform 0.3s ease;
-    display: block;
-}
-
-.menu-item:hover a i {
-    transform: scale(1.1) rotate(5deg);
 }
 
 .menu-item a:hover {
     text-decoration: none;
+}
+
+.menu-icon-badge {
+    grid-area: icon;
+    align-self: center;
+    justify-self: start;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: clamp(30px, 17cqw, 58px);
+    height: clamp(30px, 17cqw, 58px);
+    min-width: 20px;
+    min-height: 20px;
+    border-radius: 6cqw;
+}
+
+.menu-icon-badge i {
+    /* Caixa do glifo = largura total do badge + texto centralizado.
+       Glifos de ícones diferentes têm larguras internas distintas (ex.:
+       fa-flask vs fa-users). Com width:1em, os glifos mais largos que 1em
+       ultrapassavam a caixa e, como texto transbordante fica alinhado ao
+       início, ficavam deslocados para a direita em relação aos demais.
+       Com width:100% (o badge é sempre maior que qualquer glifo) todos
+       ficam centralizados de forma idêntica, sem mudar o tamanho do
+       ícone nem do badge. */
+    font-size: max(10px, 11.5cqw);
+    width: 100%;
+    text-align: center;
+}
+
+.menu-item-title {
+    grid-area: title;
+    align-self: center;
+    /* Zera as margens do elemento do título: se ele for um h1–h6 ou p, o
+       Bootstrap/navegador aplica margens assimétricas (ex.: 0 0 10px ou
+       20px 0 10px) e o BLOCO do título continua centralizado na linha do
+       ícone, mas o TEXTO dentro dele fica deslocado para cima/baixo — é
+       isso que fazia o ícone parecer fora da altura do título. Sem
+       margens, o texto do título fica centralizado exatamente no mesmo
+       eixo vertical do ícone (ambos com align-self:center na mesma
+       linha do grid). Tamanho, fonte e demais elementos não mudam. */
+    margin: 0;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: max(9px, 6.8cqw);
+    color: var(--text-dark);
+    line-height: 1.3;
+}
+
+/* Impede que a quebra de linha separe o número do início do nome do
+   tópico (ex.: "1." sozinho numa linha e "Orientações Gerais" na
+   seguinte). Vale para qualquer largura de tela (ver exceção mobile
+   mais abaixo, onde a largura do texto fica curta demais para manter
+   isso travado). */
+.menu-item-title-lock {
+    white-space: nowrap;
+}
+
+.menu-item-desc {
+    grid-area: desc;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: max(7px, 5cqw);
+    color: var(--text-light);
+    line-height: 1.35;
+}
+
+.menu-item-arrow {
+    grid-area: arrow;
+    justify-self: end;
+    align-self: start;
+    margin-top: clamp(2px, 1cqw, 6px);
+    color: var(--primary-blue);
+    font-size: max(8px, 7.5cqw);
+    transition: transform 0.3s ease;
+}
+
+.menu-item:hover .menu-item-arrow {
+    transform: translateX(4px);
+}
+
+/* Logo LabPlus flutuante removida a pedido: o elemento já era
+   position:absolute (fora do fluxo do documento, dentro de
+   .mainbody-section), então display:none aqui apenas apaga a imagem
+   da tela — não abre buraco nem desloca nenhum outro elemento. */
+.labplus-float-logo {
+    display: none;
 }
 
 .disabled {
@@ -215,100 +941,501 @@ p {
     opacity: 0.8;
 }
 
-@media only screen and (min-width: 600px) and (max-width: 991px) {
+
+/* Contagem de colunas do grid por largura de tela.
+   Como o projeto não permite scroll vertical em NENHUMA resolução (ver
+   overflow:hidden no body/.mainbody-section), o número de LINHAS
+   (--grid-rows = ceil(15 / --grid-cols)) é o que decide quanta altura
+   sobra por card — quanto menos colunas, mais linhas, e mais o card
+   encolhe verticalmente (--card-h-by-height, ver :root). Por isso a
+   versão anterior (2 colunas/8 linhas abaixo de 600px, e pior ainda,
+   1 coluna/15 linhas abaixo de 360px) espremia demais os cards em
+   celular: 15 linhas numa tela de ~600-900px de altura sobra muito
+   pouco por linha.
+   Correção: uma progressão mais gradual de colunas, evitando cair para
+   1 coluna em qualquer resolução testada (inclusive 320×568):
+     > 900px  → 5 colunas / 3 linhas (padrão do :root, desktop)
+     ≤ 900px  → 4 colunas / 4 linhas (tablet)
+     ≤ 600px  → 3 colunas / 5 linhas (celular)
+   Cada breakpoint só precisa redefinir --grid-cols e --grid-rows (ver
+   fórmula completa de --card-w no :root) — o grid-template-columns do
+   .menu-grid e o tamanho do card se recalculam sozinhos a partir
+   dessas duas variáveis, sem duplicar nenhuma fórmula aqui. */
+@media (max-width: 900px) {
+    :root {
+        --grid-cols: 4;
+        --grid-rows: 4;
+    }
+
+    /* O bloqueio de quebra entre "NÚMERO." e a primeira palavra do
+       título (.menu-item-title-lock, ver regra original acima) é seguro
+       em telas largas, onde sempre sobra espaço de coluna suficiente.
+       Em telas mais estreitas (tablet/celular, a partir daqui até
+       mobile), a largura do texto (100% do card menos o padding-left
+       reservado ao ícone, ver .menu-item a) pode ficar mais estreita
+       que esse trecho travado — como
+       white-space:nowrap proíbe quebrar DENTRO do span, o texto ia
+       visualmente para fora do card em vez de quebrar linha (bug visto
+       em "12. Faturamento" e outros títulos de uma palavra só). Permitir
+       a quebra normal aqui resolve o overflow sem esconder nenhuma
+       palavra — o título só passa a ocupar mais uma linha quando
+       necessário, o que o card já suporta (cresce em altura, ver bloco
+       de correção mobile mais abaixo). */
+    .menu-item-title-lock {
+        white-space: normal;
+    }
+}
+
+@media (max-width: 600px) {
+    :root {
+        --grid-cols: 3;
+        --grid-rows: 5;
+    }
+}
+
+/* Ícones dos tópicos um pouco maiores no mobile — só o TAMANHO do badge e
+   do glifo aumenta (clamp mínimo/preferencial/máximo levemente maiores);
+   posição/alinhamento continuam exatamente os mesmos, herdados do bloco
+   "@media (max-width: 1600px)" acima (grid-area:icon, justify-self:start,
+   align-self:center), que não é alterado aqui. */
+@media (max-width: 600px) {
+    .menu-icon-badge {
+        width: clamp(34px, 19cqw, 60px);
+        height: clamp(34px, 19cqw, 60px);
+    }
+
+    .menu-icon-badge i {
+        font-size: max(11px, 13cqw);
+    }
+}
+
+/* ============================================================
+   CORREÇÃO MOBILE — ícone e seta sendo cortados nos cards
+   ------------------------------------------------------------
+   Causa raiz #1: a coluna do ícone dentro do grid do card
+   (.menu-item a, grid-template-columns) continuava usando o clamp
+   ORIGINAL (30–58px) mesmo depois do badge crescer para 34–60px no
+   bloco acima. Como o badge ficava mais largo que a própria coluna
+   reservada a ele, ele "vazava" para fora do espaço que lhe cabia.
+   Corrigido alinhando o clamp da coluna ao clamp do badge.
+
+   Causa raiz #2 (a principal): o card usa aspect-ratio fixo
+   (173/100, herdado da referência 1366×768) e sua altura é sempre
+   proporcional à LARGURA da célula do grid. Em telas estreitas
+   (3 colunas), a largura de cada card fica pequena o suficiente
+   para que a altura resultante do aspect-ratio (~55–65px) seja
+   MENOR do que o espaço que ícone (34–60px) + título + subtítulo +
+   seta precisam para caber inteiros com folga — o excedente vertical
+   era cortado pelo overflow:hidden do próprio .menu-item (regra
+   estrutural do card, não alterada aqui) porque não sobrava espaço
+   para ele, e não porque o overflow:hidden estivesse "escondendo"
+   um erro de conteúdo.
+   A correção reduz o que o conteúdo interno precisa (padding, gaps e
+   line-height do miolo do card) e garante, com um min-height, que o
+   card NUNCA fique mais baixo do que o mínimo necessário — o
+   aspect-ratio continua mandando sempre que já é suficiente; o
+   min-height só entra em ação quando ele não seria suficiente. Isso
+   preserva a mesma proporção/desenho do card em qualquer tela maior
+   (tablet/desktop/1366×768), pois nada aqui está fora dos media
+   queries mobile.
+   ============================================================ */
+@media (max-width: 600px) {
+    /* Coluna do ícone igual ao tamanho real do badge (34–60px) —
+       elimina o vazamento horizontal do ícone para fora da sua
+       célula do grid. Gaps e padding internos reduzidos para abrir
+       espaço vertical extra sem tocar no tamanho do ícone. */
+    .menu-item a {
+        grid-template-columns: clamp(34px, 19cqw, 60px) 1fr;
+        column-gap: clamp(6px, 2.5cqw, 12px);
+        row-gap: clamp(2px, 1cqw, 5px);
+        padding: clamp(8px, 5cqw, 16px);
+        
+    }
+
+    /* Piso de altura do card: garante espaço suficiente para
+       ícone + título + subtítulo + seta em qualquer largura de tela
+       ≤600px, sem jamais forçar o card a ficar mais baixo do que o
+       aspect-ratio já definiria (min-height só aumenta, nunca
+       diminui, a altura calculada pelo aspect-ratio). */
     .menu-item {
-        display: inline-block;
-        width: 32.8%;
+        min-height: clamp(70px, 10vh, 96px);
+    }
+
+    /* Texto do subtítulo um pouco mais compacto (só no mobile),
+       liberando alguns pixels verticais para a seta não ficar
+       espremida contra a borda inferior do card. */
+    .menu-item-desc {
+        line-height: 1.25;
+        /* Alinhamento vertical dos ícones entre cards (mobile):
+           o miolo do card é centralizado (align-content:center em
+           .menu-item a), então o ícone só fica na mesma altura dos
+           demais se o BLOCO interno tiver a mesma altura em todos os
+           cards. O card "3. Suporte" tem o subtítulo com uma linha a
+           menos que os vizinhos, o bloco ficava mais baixo e, ao ser
+           centralizado, empurrava o ícone alguns pixels para baixo.
+           Reservar a altura de 2 linhas para o subtítulo iguala a
+           altura do bloco em todos os cards — os que já ocupam 2
+           linhas não mudam nada. */
+        min-height: 2.5em; /* 2 linhas × line-height 1.25 */
+    }
+
+    /* Respiro entre subtítulo e seta reduzido proporcionalmente,
+       mantendo a seta sempre dentro da área visível do card. */
+    .menu-item-arrow {
+        margin-top: clamp(1px, 1cqw, 4px);
     }
 }
 
-@media only screen and (min-width: 992px) and (max-width: 1199px) {
-    .menu-item {
-        padding: 20px 18px;
+/* Em telas estreitas (≤600px), reduz um pouco o padding vertical do
+   cabeçalho/corpo/rodapé — cabeçalho e rodapé já têm altura natural
+   (flex:0 0 auto, sem min-height fixo), então isso só deixa mais
+   compacto, nunca é necessário para caber. */
+@media (max-width: 600px) {
+    #logo-section {
+        padding: clamp(3px, 0.8vh, 8px) 0;
     }
-    .menu-item a i {
-        font-size: 35px;
+
+    .mainbody-section {
+        padding: clamp(4px, 1vh, 12px) 0;
     }
-    .menu-item a p {
-        font-size: 13px;
+
+    .copyright {
+        padding: clamp(4px, 0.8vh, 8px) clamp(20px, 6vw, 48px);
+    }
+
+    /* "Central de Treinamentos LabPlus": continua visível, mas
+       reduzida proporcionalmente (principalmente em altura, via vh),
+       para não ocupar espaço excessivo no celular. */
+    .mainbody-title h1 {
+        font-size: clamp(13px, 2.3vh, 19px);
+        line-height: 1.2;
+    }
+
+    .mainbody-title p {
+        font-size: clamp(9px, 1.3vh, 12px);
+        line-height: 1.4;
+        margin-top: clamp(2px, 0.6vh, 6px);
+    }
+
+    /* Botão flutuante "Abrir suporte": nada a sobrescrever aqui —
+       agora é um FAB (position:fixed) dimensionado por clamp() nas
+       regras de .support-box acima, que já se adapta sozinho a telas
+       menores sem precisar de media query própria. */
+}
+
+
+/* Telas baixas (celular deitado / notebook curto): a largura pode ser
+   grande, mas a altura é o recurso escasso. Nesses casos forçamos MAIS
+   colunas (menos linhas): com --card-w-by-height fixo pela altura
+   disponível (ver :root), menos linhas = cada linha "ganha" mais altura
+   do orçamento total, então o card final fica maior do que ficaria com
+   5 colunas na mesma altura de tela. */
+@media (max-height: 420px) and (min-width: 601px) {
+    :root {
+        --grid-cols: 4;
+        --grid-rows: 4;
     }
 }
 
-.home-slider img {
-    width: 100%;
-    height: auto;
-    border-radius: 8px;
+@media (max-height: 420px) and (max-width: 600px) {
+    :root {
+        --grid-cols: 4;
+        --grid-rows: 4;
+    }
 }
 
-.home-slider .carousel-indicators {
-    position: absolute;
-    bottom: 10%;
-}
-
-.home-slider .carousel-indicators .active {
-    background-color: var(--primary-blue);
-}
-
+/* Rodapé: item flex normal (flex-shrink:0), sem position:fixed — o mesmo
+   ajuste já aplicado no arquivo de referência. Fixed tirava o rodapé do
+   fluxo do flexbox e podia sobrepor o conteúdo em telas baixas. */
+/* Altura do rodapé calculada em vh/dvh (~5% da tela) como um PISO
+   (min-height), não mais como altura travada. Isso corrige a quebra no
+   mobile: com "height" fixa + overflow:hidden, quando os 4 grupos do
+   footer (marca / endereço / cidade / telefone) quebravam em 2-3 linhas
+   em telas estreitas, o texto excedente ficava cortado. Com min-height +
+   overflow visível, o rodapé cresce naturalmente para caber o texto
+   quando precisar (o .mainbody-section, que é flex:1, cede o espaço
+   automaticamente) e só usa exatamente ~5% quando o conteúdo cabe em uma
+   linha, que é o caso comum em telas maiores.
+   O padding lateral aumentou (era clamp(10px,3vw,20px)) para o texto não
+   ficar colado nas bordas. A fonte usa o mesmo tipo de escala em vh que
+   o texto dos cards do body (.menu-item a p, ver acima) — como as duas
+   usam vh como unidade de referência, ambas crescem/encolhem juntas
+   quando a altura da tela muda, mantendo a proporção entre footer e
+   ícones do body em qualquer resolução. */
 .copyright {
-    background: linear-gradient(135deg, var(--text-dark) 0%, #2D3748 100%);
-    color: rgba(255, 255, 255, 0.9);
-    padding: 15px 0;
+    background: #FFFFFF;
+    color: var(--text-light);
+    padding: clamp(6px, 1vh, 10px) clamp(20px, 6vw, 48px);
     text-align: center;
-    font-size: 12px;
-    border-top: 3px solid var(--primary-blue);
+    font-size: clamp(9px, 1.3vh, 12px);
+    line-height: 1.5;
+    border-top: 1px solid var(--border-light);
     flex-shrink: 0;
-    position: fixed;
-    bottom: 0;
-    z-index: 9999;
     width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+}
+
+.copyright .container {
+    /* largura máxima, margens e padding laterais vêm da regra global
+       .container acima — aqui só zera o padding vertical, que não se
+       aplica dentro do rodapé */
+    padding-top: 0;
+    padding-bottom: 0;
+}
+
+/* Rodapé: os grupos (marca / endereço / cidade-estado-país / telefone)
+   ficam lado a lado e se distribuem em uma linha só quando a tela tem
+   espaço (aproveitando bem a largura em telas grandes); quando não cabe,
+   o flex-wrap quebra sempre entre grupos inteiros — nunca no meio de um
+   deles — então nada fica espremido, sobreposto ou grudado. */
+.footer-info {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: center;
+    row-gap: clamp(2px, 0.6vh, 6px);
+    column-gap: clamp(6px, 1.5vw, 14px);
+    width: 100%;
+    min-width: 0;
+}
+
+/* Logo do LabPlus no rodapé: substitui o texto puro que havia antes
+   ("LABPlus"), mas ocupa o MESMO espaço que o texto ocupava — a altura
+   acompanha o mesmo clamp() (em vh) já usado no font-size do rodapé
+   (.copyright, acima) multiplicado pelo line-height de 1.5 também já
+   usado lá, então a logo nunca fica maior do que a linha de texto ao
+   redor, em nenhuma resolução, e o rodapé continua com a mesma altura
+   de sempre (--footer-h intocado). align-self:center substitui o
+   align-items:baseline herdado do .footer-info (que não faz sentido
+   para uma imagem, sem baseline de texto), centralizando a logo
+   verticalmente em relação à linha de texto ao lado. */
+.footer-logo {
+    /* Aumentada (era clamp(13.5px, 1.95vh, 18px), ficava pequena demais
+       perto do resto do texto) — ainda em vh, então continua escalando
+       junto com --footer-h em qualquer resolução, só que agora com um
+       piso/teto mais visível. */
+    height: clamp(18px, 2.9vh, 26px);
+    width: auto;
+    max-width: 120px;
+    object-fit: contain;
+    display: block;
+    align-self: center;
+}
+
+.footer-copyright {
+    margin-left: auto;
+    white-space: nowrap;
+    min-width: 0;
+    overflow-wrap: break-word;
+}
+
+.footer-sep {
+    opacity: 0.45;
+}
+
+@media (max-width: 576px) {
+    .footer-sep {
+        display: none;
+    }
+
+    .footer-copyright {
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+        white-space: normal;
+    }
 }
 
 .copyright a {
-    color: var(--accent-teal);
+    color: var(--primary-blue);
     font-weight: 600;
 }
 
 .copyright a:hover {
-    color: var(--accent-green);
+    color: var(--secondary-blue);
 }
 
 /**** Start Modal Section ****/
 
+/* O modal agora é uma caixa flutuante centralizada, com margem (backdrop
+   visível) em todos os lados — não mais tela cheia. Isso deixa espaço
+   para o usuário clicar fora da caixa e fechar o modal (o próprio
+   bootstrap.js já fecha o modal ao clicar no backdrop; antes isso era
+   impossível porque o .modal-content cobria 100% da tela). A margem e o
+   tamanho máximo são calculados em vh/vw, então a "moldura" de backdrop
+   permanece proporcional em qualquer resolução. Dentro da caixa,
+   overflow-y:auto continua permitindo rolagem apenas do CONTEÚDO do
+   modal (vídeos, PDFs, textos longos), nunca da página principal. */
+/* Centraliza o modal vertical e horizontalmente na tela. O Bootstrap
+   aplica "display: block" inline via JS ao abrir o modal (classe .in),
+   por isso o !important aqui é necessário só para trocar esse display
+   para flex — o .modal-content (regra abaixo) já cresce conforme o
+   conteúdo e tem seu próprio teto de altura com scroll interno, então
+   isso não altera esse comportamento, apenas o alinha no centro da
+   tela em vez de encostado no topo. */
+.section-modal.modal.in {
+    display: flex !important;
+    align-items: center;
+    justify-content: center;
+}
+
 .section-modal .modal-content {
-    padding: 80px 40px !important;
-    min-height: 100%;
+    padding: clamp(14px, 5vh, 60px) clamp(12px, 3vw, 40px) !important;
+    margin: clamp(12px, 5vh, 50px) auto;
+    width: min(1100px, 92vw);
+    max-width: 92vw;
+    min-height: 0;
+    max-height: min(90dvh, calc(100dvh - clamp(24px, 10vh, 100px)));
+    overflow-y: auto;
+    overflow-x: hidden;
     border: 0 !important;
-    border-radius: 0;
+    border-radius: clamp(10px, 2vw, 22px);
     background: linear-gradient(180deg, #FFFFFF 0%, #F7FAFC 100%);
-    -webkit-box-shadow: none !important;
-    -moz-box-shadow: none !important;
-    box-shadow: none !important;
+    -webkit-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35) !important;
+    -moz-box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35) !important;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35) !important;
     color: var(--text-light);
     font-weight: 400;
+}
+
+/* Este é o ajuste central da correção do modal em telas grandes: o
+   .container aqui dentro precisa ocupar exatamente 100% da caixa do
+   modal (nunca mais que isso), em qualquer resolução — nunca uma largura
+   fixa em px (era o que o Bootstrap aplicava a partir de 768px, e o que
+   fazia o conteúdo do modal ultrapassar a caixa/gerar overflow quanto
+   maior a tela). O padding-left/right de 15px replica o gutter padrão do
+   Bootstrap (compensa a margem negativa de -15px do .row), então o
+   conteúdo interno continua alinhado como antes; o padding do
+   .modal-content (já responsivo, ver acima) segue sendo o único respiro
+   "externo" da caixa, evitando dobrar o espaçamento. */
+.section-modal .modal-content .container {
+    width: 100%;
+    max-width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Alinha à esquerda apenas o CONTEÚDO interno das seções do modal,
+   sem tocar no título (.section-title, ex.: "LABORATÓRIOS DE APOIO")
+   nem na descrição/introdução logo abaixo dele (ex.: "Siga o roteiro
+   abaixo..."), que devem continuar centralizados como sempre estiveram.
+   No HTML, dentro de cada .row do modal, o primeiro ".text-center" é
+   sempre essa descrição/introdução; os blocos de conteúdo que vêm
+   depois dela (ex.: "1 - Introdução", "4 - Envio de exames") também
+   usam ".text-center", então o seletor abaixo mira exatamente os que
+   vêm DEPOIS de um ".text-center" irmão anterior — ou seja, tudo menos
+   o título e essa primeira descrição, sem precisar mexer no HTML. */
+.section-modal .modal-content .text-center ~ .text-center {
+    text-align: left;
+}
+
+/* Casos específicos que a regra geral acima não cobre, corrigidos com
+   seletores restritos ao id de cada modal (não afetam nenhuma outra
+   tela):
+
+   - #convenio-modal: todo o conteúdo do módulo (parágrafos + links)
+     fica em um único bloco ".text-center", sem um segundo bloco de
+     conteúdo separado da descrição — por isso a regra geral (que só
+     alinha o ".text-center" que vem DEPOIS de outro) não o alcançava.
+     Aqui o próprio bloco é o conteúdo, então ele vai inteiro para a
+     esquerda. O ":not(.section-title)" evita pegar o título (que
+     também usa a classe ".text-center" para ficar centralizado) —
+     antes ele estava sendo alinhado à esquerda por engano junto com o
+     conteúdo. */
+#convenio-modal .text-center:not(.section-title) {
+    text-align: left;
+}
+
+/* O subtítulo (os dois parágrafos logo abaixo do título) faz parte do
+   mesmo bloco ".text-center" do conteúdo, então ao alinhar o conteúdo
+   à esquerda ele também foi. Aqui devolvemos só os parágrafos para o
+   centro — sem afetar os h4/links abaixo, que devem continuar à
+   esquerda — e aumentamos o espaço depois do último parágrafo antes do
+   conteúdo começar, reaproveitando a mesma escala de espaçamento já
+   usada para o espaço título→conteúdo (clamp(18px, 3vh, 30px)),
+   seguindo o padrão da tela de Caixa. */
+#convenio-modal .text-center p {
+    text-align: center;
+}
+
+#convenio-modal .text-center p:last-of-type {
+    margin-bottom: clamp(18px, 3vh, 30px);
+}
+
+/* - #orientacoes-modal: "Fluxo de trabalho de um laboratório" e
+     "Navegação" são links (h4) que ficam dentro do PRIMEIRO
+     ".text-center" (o mesmo bloco da descrição/introdução, que deve
+     permanecer centralizada). Por isso miramos só os h4 desse bloco,
+     sem tocar nos parágrafos de descrição nem em nenhum outro modal. */
+#orientacoes-modal .text-center h4 {
+    text-align: left;
 }
 
 .section-modal .modal-content h3 {
     color: var(--primary-blue) !important;
 }
 
+/* Padrão de espaçamento dos modais (referência: tela de Caixa), aplicado
+   de forma reutilizável a TODOS os modais, sem regras específicas por
+   tela:
+
+   1) Título → conteúdo: comparando os modais, a causa da inconsistência
+      não é a falta de uma regra de espaçamento (o h3 já tem sua margem
+      padrão), e sim um <br> extra logo depois do título que existe em
+      alguns modais (ex.: Caixa, Apoio) e não em outros (ex.: Convênios,
+      Orientações, Backup, Downloads) — daí o título "colado" no
+      conteúdo nesses últimos. Em vez de depender desse <br> (frágil e
+      inconsistente), fixamos um espaçamento único via margin-bottom no
+      próprio título — no valor aproximado que a Caixa (nossa
+      referência) já usava com o <br> — e esse <br>, agora redundante,
+      é ocultado em todo modal que ainda o tiver. */
+.section-modal .modal-content .section-title {
+    margin-bottom: clamp(18px, 3vh, 30px);
+}
+
+.section-modal .modal-content .section-title br {
+    display: none;
+}
+
+/* 2) Espaçamento entre itens de conteúdo (h4/links/botões): o mesmo
+      problema se repete dentro das seções — alguns modais (Convênios,
+      Orientações, Apoio, Backup) têm um <br> extra depois de cada h4,
+      o que soma uma linha inteira em cima da margem padrão do h4 e
+      deixa o espaçamento maior/desigual em relação aos modais que não
+      têm esse <br> (como a própria Caixa, nossa referência, que já
+      fica com ritmo consistente usando só a margem padrão do h4).
+      Ocultando esse <br> redundante, todo modal passa a usar a MESMA
+      margem (a padrão do h4, já existente) para espaçar os itens entre
+      si — sem precisar inventar um valor novo. */
+.section-modal .modal-content h4 + br {
+    display: none;
+}
+
 .section-modal .modal-content h4,
 .section-modal .modal-content h4 a {
     color: var(--text-dark) !important;
     font-weight: 600;
-    font-size: 16px;
+    font-size: clamp(11px, 1.9vh, 16px);
+    line-height: 1.4;
 }
 
 .section-modal .modal-content p {
     color: var(--text-light);
-    font-size: 14px;
+    font-size: clamp(10px, 1.7vh, 14px);
+    line-height: 1.5;
 }
 
 .section-modal .close-modal {
     position: absolute;
-    top: 25px;
-    right: 25px;
-    width: 50px;
-    height: 50px;
+    top: clamp(12px, 3vw, 25px);
+    right: clamp(12px, 3vw, 25px);
+    width: var(--modal-close-size);
+    height: var(--modal-close-size);
     background-color: transparent;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -322,8 +1449,8 @@ p {
 .section-modal .close-modal .lr {
     z-index: 1051;
     width: 2px;
-    height: 50px;
-    margin-left: 24px;
+    height: var(--modal-close-size);
+    margin-left: calc(var(--modal-close-size) / 2);
     background-color: var(--text-dark);
     transform: rotate(45deg);
 }
@@ -331,13 +1458,13 @@ p {
 .section-modal .close-modal .lr .rl {
     z-index: 1052;
     width: 2px;
-    height: 50px;
+    height: var(--modal-close-size);
     background-color: var(--text-dark);
     transform: rotate(90deg);
 }
 
 .sumario-video {
-    margin-left: 30px;
+    margin-left: clamp(8px, 2.2vh, 26px);
 }
 
 /**** Start Line divisor for Media Section ****/
@@ -348,7 +1475,7 @@ hr.media {
     border-top: 2px solid var(--border-light);
     color: var(--border-light);
     text-align: center;
-    margin: 40px 0;
+    margin: clamp(10px, 2.5vh, 30px) 0;
 }
 
 hr.media:after {
@@ -396,8 +1523,8 @@ video::-webkit-media-controls-panel {
 }
 
 .section-modal .modal-content img {
-    border-radius: 8px;
-    margin: 20px 0;
+    border-radius: clamp(6px, 0.6vw, 10px);
+    margin: clamp(6px, 1.8vh, 20px) 0;
     box-shadow: 0 4px 12px rgba(74, 95, 234, 0.1);
     transition: transform 0.3s ease;
 }
@@ -407,15 +1534,31 @@ video::-webkit-media-controls-panel {
 }
 
 .section-modal .modal-content video {
-    border-radius: 8px;
+    border-radius: clamp(6px, 0.6vw, 10px);
     box-shadow: 0 4px 12px rgba(74, 95, 234, 0.1);
-    margin: 20px 0;
+    margin: clamp(6px, 1.8vh, 20px) 0;
+}
+
+/* Sobrescreve os atributos width="320" height="240" fixos no HTML dos
+   <video>/<iframe> dentro dos modais — CSS de elemento tem prioridade
+   sobre esses atributos, então isso já resolve sem precisar editar cada
+   tag. O teto agora combina px com vh (min()), então em telas baixas o
+   vídeo encolhe junto com a altura disponível, não só com a largura. */
+.section-modal video,
+.section-modal iframe {
+    width: 100%;
+    max-width: min(320px, 50vh);
+    height: auto;
+    aspect-ratio: 4 / 3;
+    display: block;
+    margin-left: 0;
+    margin-right: auto;
 }
 
 .section-modal .modal-content li {
     color: var(--text-light);
-    margin-left: 20px;
-    margin-bottom: 10px;
+    margin-left: clamp(10px, 1.8vh, 18px);
+    margin-bottom: clamp(4px, 1vh, 10px);
 }
 
 .section-modal .modal-content li::marker {
@@ -424,7 +1567,7 @@ video::-webkit-media-controls-panel {
 }
 
 .section-modal .modal-content .media {
-    margin-bottom: 30px;
+    margin-bottom: clamp(18px, 3vh, 30px);
 }
 
 /* Melhora para links disabled */
@@ -440,11 +1583,11 @@ video::-webkit-media-controls-panel {
 /* Estilos para buttons/links de CTA */
 .section-modal .modal-content a[target="_blank"] {
     display: inline-block;
-    padding: 10px 20px;
+    padding: clamp(8px, 1.5vh, 10px) clamp(14px, 2.5vw, 20px);
     background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
     color: #fff !important;
-    border-radius: 6px;
-    margin: 10px 5px;
+    border-radius: clamp(4px, 0.45vw, 8px);
+    margin: clamp(6px, 1.2vh, 10px) 5px;
     font-weight: 600;
     text-decoration: none !important;
     transition: all 0.3s ease;
@@ -456,22 +1599,138 @@ video::-webkit-media-controls-panel {
     color: #fff;
 }
 
-/* Responsiveness melhorada */
-@media (max-width: 768px) {
-    .mainbody-section {
-        padding-top: 60px;
-        padding-bottom: 60px;
-    }
-    
-    .menu-item {
-        margin-bottom: 20px;
-    }
-    
-    #logo-section {
-        padding: 40px 0;
-    }
-    
+/* Notebooks "baixos e largos" (ex.: 1366x768, 1536x864, 1440x810...) e
+   telas baixas em geral (notebooks pequenos, celular em landscape):
+   não precisam mais de nenhuma recalibração aqui. Cabeçalho e rodapé
+   já têm altura natural (flex:0 0 auto, sem min-height estimado) e o
+   .menu-grid é flex:1 1 auto — preenche exatamente o espaço real que
+   sobra em QUALQUER altura de tela, calculado pelo próprio navegador,
+   nunca por uma fórmula de CSS tentando adivinhar quanto a barra de
+   endereço do navegador consome. Por isso o conteúdo cabe sempre, sem
+   scroll, em 1366×768 e em qualquer outra resolução, sem precisar de
+   media queries específicas por faixa de altura. */
+
+/* Telas estreitas (celular) — só ajustes que não sejam de altura de
+   item/ícone/texto do menu (isso já é resolvido em vh dentro do
+   .menu-item), apenas o restante da página. */
+@media (max-height: 500px) {
     .section-modal .modal-content {
-        padding: 50px 25px !important;
+        margin: clamp(6px, 2.5vh, 16px) auto;
+        max-height: min(96dvh, calc(100dvh - clamp(12px, 5vh, 32px)));
+        padding: clamp(8px, 3vh, 20px) clamp(10px, 3vw, 24px) !important;
+    }
+}
+
+@media (max-width: 576px) {
+    .section-modal .modal-content {
+        width: min(100%, 96vw);
+        max-width: 96vw;
+        margin: clamp(8px, 3vh, 20px) auto;
+        max-height: min(94dvh, calc(100dvh - clamp(16px, 6vh, 40px)));
+        border-radius: clamp(8px, 3vw, 14px);
+        padding: clamp(16px, 4vh, 24px) clamp(10px, 4vw, 16px) !important;
+    }
+
+    .copyright {
+        font-size: clamp(9px, 1.4vh, 10px);
+    }
+}
+
+/* ============================================================
+   Mobile: com o .menu-grid preenchendo via flex:1 1 auto (ver acima),
+   o encaixe vertical já funciona automaticamente em qualquer largura/
+   altura, sem precisar de overflow-y:auto nem de recalcular a altura
+   do card manualmente — o card usa 100% da célula do grid (que já é
+   1fr, proporcional ao espaço real disponível), então nada fica
+   cortado nem escondido atrás do rodapé.
+   ============================================================ */
+
+
+/* ============================================================
+   Tela DOWNLOADS — Cards de botão TV / TV_HOT
+   Regras 100% isoladas ao #downloads-modal (por id), portanto não
+   afetam nenhum outro modal, componente ou estilo global do
+   projeto. Elas apenas SOBRESCREVEM, dentro deste modal, a regra
+   genérica ".section-modal .modal-content a[target='_blank']"
+   (que estiliza os links como "pill buttons" azuis) — necessário
+   porque aqui os dois links precisam ter a aparência de cartão,
+   conforme a referência visual enviada. A sobrescrita funciona
+   sem !important porque um seletor com id sempre tem mais
+   especificidade do que um seletor só com classes/atributo.
+   ============================================================ */
+
+#downloads-modal .downloads-grid {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: stretch;
+    gap: clamp(14px, 2.5vw, 28px);
+    margin-top: clamp(10px, 2vh, 20px);
+}
+
+#downloads-modal .download-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: center;
+    width: clamp(220px, 40%, 320px);
+    padding: clamp(20px, 4vh, 36px) clamp(16px, 2.5vw, 24px);
+    background: #FFFFFF;
+    border-radius: clamp(10px, 2vw, 16px);
+    -webkit-box-shadow: 0 8px 24px rgba(74, 95, 234, 0.12);
+    -moz-box-shadow: 0 8px 24px rgba(74, 95, 234, 0.12);
+    box-shadow: 0 8px 24px rgba(74, 95, 234, 0.12);
+    color: inherit;
+    font-weight: 400;
+    text-decoration: none !important;
+    margin: 0;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+#downloads-modal .download-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 30px rgba(74, 95, 234, 0.22);
+    color: inherit;
+    text-decoration: none !important;
+}
+
+#downloads-modal .download-card-icon {
+    display: block;
+    width: clamp(56px, 9vh, 76px);
+    height: clamp(56px, 9vh, 76px);
+    margin: 0 0 clamp(12px, 2vh, 20px) 0;
+    border-radius: clamp(12px, 2vw, 18px);
+    object-fit: cover;
+    flex-shrink: 0;
+}
+
+#downloads-modal .download-card-title {
+    display: block;
+    color: var(--text-dark);
+    font-weight: 600;
+    font-size: clamp(13px, 2vh, 17px);
+    line-height: 1.4;
+    margin-bottom: clamp(4px, 1vh, 8px);
+}
+
+#downloads-modal .download-card-desc {
+    display: block;
+    color: var(--text-light);
+    font-weight: 400;
+    font-size: clamp(11px, 1.6vh, 14px);
+    line-height: 1.5;
+    margin: 0;
+}
+
+@media (max-width: 576px) {
+    #downloads-modal .downloads-grid {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    #downloads-modal .download-card {
+        width: 100%;
+        max-width: 320px;
     }
 }
